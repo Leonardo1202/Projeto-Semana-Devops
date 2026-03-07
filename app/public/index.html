@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Semana DevOps Map — Mapa interativo dos participantes da Semana DevOps LINUXtips" />
+  <title>Semana DevOps Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- HEADER                                         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header__brand">
+      <div>
+        <h1 class="header__title">Semana DevOps Map</h1>
+        <p class="header__subtitle">LINUXtips</p>
+      </div>
+    </div>
+    <div class="header__badge" id="podBadge" title="Pod que está servindo esta página">
+      <span class="header__badge-label">Pod</span>
+      <span class="header__badge-value" id="podName">carregando…</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT                                   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <main class="main">
+    <!-- ─── Stats Cards ─────────────────────────── -->
+    <section class="stats" id="statsSection">
+      <div class="stat-card stat-card--total">
+        <span class="stat-card__number" id="statTotal">0</span>
+        <span class="stat-card__label">Participantes</span>
+      </div>
+      <div class="stat-card stat-card--estados">
+        <span class="stat-card__number" id="statEstados">0</span>
+        <span class="stat-card__label">Localizações</span>
+      </div>
+      <div class="stat-card stat-card--cargos">
+        <span class="stat-card__number" id="statCargos">0</span>
+        <span class="stat-card__label">Cargos diferentes</span>
+      </div>
+    </section>
+
+    <!-- ─── Two Column Layout ───────────────────── -->
+    <div class="grid">
+      <!-- LEFT: Map + Cargo chart -->
+      <div class="grid__left">
+        <!-- Map -->
+        <section class="card card--map">
+          <h2 class="card__title">De onde a galera tá assistindo</h2>
+          <div class="map-container" id="mapContainer">
+            <!-- SVG map injected by JS -->
+          </div>
+          <div class="map-legend" id="mapLegend"></div>
+        </section>
+
+        <!-- Cargo distribution -->
+        <section class="card card--chart">
+          <h2 class="card__title">Distribuição por Cargo</h2>
+          <div class="chart-bars" id="chartBars"></div>
+        </section>
+      </div>
+
+      <!-- RIGHT: Form + Feed -->
+      <div class="grid__right">
+        <!-- Registration form -->
+        <section class="card card--form">
+          <h2 class="card__title">Marca presença!</h2>
+          <form id="registerForm" autocomplete="off">
+            <div class="form-group">
+              <label for="nome">Seu nome</label>
+              <input type="text" id="nome" name="nome" placeholder="Ex: Jeferson Fernando" required maxlength="60" />
+            </div>
+            <div class="form-group">
+              <label for="estado">Localização</label>
+              <select id="estado" name="estado" required>
+                <option value="">Selecione…</option>
+                <optgroup label="Brasil">
+                  <option value="AC">AC — Acre</option>
+                  <option value="AL">AL — Alagoas</option>
+                  <option value="AP">AP — Amapá</option>
+                  <option value="AM">AM — Amazonas</option>
+                  <option value="BA">BA — Bahia</option>
+                  <option value="CE">CE — Ceará</option>
+                  <option value="DF">DF — Distrito Federal</option>
+                  <option value="ES">ES — Espírito Santo</option>
+                  <option value="GO">GO — Goiás</option>
+                  <option value="MA">MA — Maranhão</option>
+                  <option value="MT">MT — Mato Grosso</option>
+                  <option value="MS">MS — Mato Grosso do Sul</option>
+                  <option value="MG">MG — Minas Gerais</option>
+                  <option value="PA">PA — Pará</option>
+                  <option value="PB">PB — Paraíba</option>
+                  <option value="PR">PR — Paraná</option>
+                  <option value="PE">PE — Pernambuco</option>
+                  <option value="PI">PI — Piauí</option>
+                  <option value="RJ">RJ — Rio de Janeiro</option>
+                  <option value="RN">RN — Rio Grande do Norte</option>
+                  <option value="RS">RS — Rio Grande do Sul</option>
+                  <option value="RO">RO — Rondônia</option>
+                  <option value="RR">RR — Roraima</option>
+                  <option value="SC">SC — Santa Catarina</option>
+                  <option value="SP">SP — São Paulo</option>
+                  <option value="SE">SE — Sergipe</option>
+                  <option value="TO">TO — Tocantins</option>
+                </optgroup>
+                <optgroup label="Exterior">
+                  <option value="EUA">Estados Unidos</option>
+                  <option value="CAN">Canadá</option>
+                  <option value="PRT">Portugal</option>
+                  <option value="IRL">Irlanda</option>
+                  <option value="GBR">Reino Unido</option>
+                  <option value="DEU">Alemanha</option>
+                  <option value="NLD">Holanda</option>
+                  <option value="FRA">França</option>
+                  <option value="ESP">Espanha</option>
+                  <option value="ITA">Itália</option>
+                  <option value="CHE">Suíça</option>
+                  <option value="AUS">Austrália</option>
+                  <option value="JPN">Japão</option>
+                  <option value="ARG">Argentina</option>
+                  <option value="URY">Uruguai</option>
+                  <option value="CHL">Chile</option>
+                  <option value="COL">Colômbia</option>
+                  <option value="MEX">México</option>
+                  <option value="ANG">Angola</option>
+                  <option value="MOZ">Moçambique</option>
+                  <option value="OUT">Outro país</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cargo">Cargo / Área</label>
+              <select id="cargo" name="cargo" required>
+                <option value="">Selecione…</option>
+                <option value="DevOps">DevOps</option>
+                <option value="SRE">SRE</option>
+                <option value="Backend">Backend Developer</option>
+                <option value="Frontend">Frontend Developer</option>
+                <option value="FullStack">FullStack Developer</option>
+                <option value="Platform Engineer">Platform Engineer</option>
+                <option value="Cloud Engineer">Cloud Engineer</option>
+                <option value="SysAdmin">SysAdmin</option>
+                <option value="QA">QA / Testes</option>
+                <option value="DBA">DBA</option>
+                <option value="SecOps">SecOps / AppSec</option>
+                <option value="Data Engineer">Data Engineer</option>
+                <option value="Tech Lead">Tech Lead</option>
+                <option value="Manager">Manager / Coord.</option>
+                <option value="Estudante">Estudante</option>
+                <option value="Transicao">Em transição de carreira</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">
+              <span class="btn__text">Entrar no Mapa</span>
+              <span class="btn__loading" style="display:none">Enviando…</span>
+            </button>
+            <p class="form-feedback" id="formFeedback"></p>
+          </form>
+        </section>
+
+        <!-- Live feed -->
+        <section class="card card--feed">
+          <h2 class="card__title">Feed ao vivo</h2>
+          <ul class="feed-list" id="feedList">
+            <li class="feed-item feed-item--empty">Nenhum participante ainda… seja o primeiro!</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- FOOTER                                         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <p>Feito na <strong>Semana DevOps</strong> — <a href="https://linuxtips.io" target="_blank"
+        rel="noopener">LINUXtips</a> — #VAMODEPLOY</p>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SCRIPT                                         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <script>
+    // ─── State ──────────────────────────────────────
+    const API = '';
+    let allParticipantes = [];
+    const POLL_INTERVAL = 5000; // 5 s
+
+    // ─── Coordenadas aproximadas (x%, y%) no mapa grid ──
+    // Brasil (estados) + Internacional (posicionados nas bordas do mapa)
+    const STATE_COORDS = {
+      // Brasil
+      AC: [10, 48], AL: [80, 45], AP: [40, 15], AM: [22, 28], BA: [72, 43],
+      CE: [78, 32], DF: [58, 52], ES: [72, 58], GO: [56, 52], MA: [60, 26],
+      MT: [42, 50], MS: [46, 60], MG: [64, 55], PA: [42, 25], PB: [82, 36],
+      PR: [54, 68], PE: [80, 38], PI: [66, 32], RJ: [68, 62], RN: [82, 32],
+      RS: [52, 78], RO: [28, 48], RR: [26, 12], SC: [54, 72], SP: [58, 64],
+      SE: [78, 42], TO: [50, 38],
+      // Internacional (nas bordas/cantos do mapa)
+      EUA: [5, 8], CAN: [5, 2], PRT: [92, 8], IRL: [88, 2], GBR: [92, 2],
+      DEU: [95, 5], NLD: [92, 5], FRA: [90, 8], ESP: [88, 10], ITA: [95, 10],
+      CHE: [93, 7], AUS: [95, 90], JPN: [95, 15], ARG: [38, 90],
+      URY: [44, 88], CHL: [32, 92], COL: [18, 18], MEX: [8, 18],
+      ANG: [88, 50], MOZ: [92, 55], OUT: [95, 50]
+    };
+
+    const STATE_NAMES = {
+      // Brasil
+      AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará',
+      DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão',
+      MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará',
+      PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro',
+      RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima',
+      SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins',
+      // Internacional
+      EUA: 'EUA', CAN: 'Canadá', PRT: 'Portugal', IRL: 'Irlanda',
+      GBR: 'Reino Unido', DEU: 'Alemanha', NLD: 'Holanda', FRA: 'França',
+      ESP: 'Espanha', ITA: 'Itália', CHE: 'Suíça', AUS: 'Austrália',
+      JPN: 'Japão', ARG: 'Argentina', URY: 'Uruguai', CHL: 'Chile',
+      COL: 'Colômbia', MEX: 'México', ANG: 'Angola', MOZ: 'Moçambique',
+      OUT: 'Outro'
+    };
+
+    // Códigos internacionais (para estilizar diferente no mapa)
+    const INTERNATIONAL = new Set(['EUA', 'CAN', 'PRT', 'IRL', 'GBR', 'DEU', 'NLD', 'FRA', 'ESP', 'ITA', 'CHE', 'AUS', 'JPN', 'ARG', 'URY', 'CHL', 'COL', 'MEX', 'ANG', 'MOZ', 'OUT']);
+
+    // ─── DOM refs ───────────────────────────────────
+    const dom = {
+      podName: document.getElementById('podName'),
+      statTotal: document.getElementById('statTotal'),
+      statEstados: document.getElementById('statEstados'),
+      statCargos: document.getElementById('statCargos'),
+      mapContainer: document.getElementById('mapContainer'),
+      mapLegend: document.getElementById('mapLegend'),
+      chartBars: document.getElementById('chartBars'),
+      feedList: document.getElementById('feedList'),
+      form: document.getElementById('registerForm'),
+      submitBtn: document.getElementById('submitBtn'),
+      feedback: document.getElementById('formFeedback'),
+    };
+
+    // ─── Init ───────────────────────────────────────
+    async function init() {
+      fetchInfo();
+      await fetchParticipantes();
+      renderAll();
+      setInterval(async () => {
+        await fetchParticipantes();
+        renderAll();
+      }, POLL_INTERVAL);
+
+      dom.form.addEventListener('submit', handleSubmit);
+    }
+
+    // ─── API calls ──────────────────────────────────
+    async function fetchInfo() {
+      try {
+        const r = await fetch(`${API}/api/info`);
+        const d = await r.json();
+        dom.podName.textContent = d.pod || 'local';
+      } catch { dom.podName.textContent = '—'; }
+    }
+
+    async function fetchParticipantes() {
+      try {
+        const r = await fetch(`${API}/api/participantes`);
+        allParticipantes = await r.json();
+      } catch { /* silently retry next poll */ }
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value.trim();
+      const estado = document.getElementById('estado').value;
+      const cargo = document.getElementById('cargo').value;
+
+      if (!nome || !estado || !cargo) return;
+
+      dom.submitBtn.querySelector('.btn__text').style.display = 'none';
+      dom.submitBtn.querySelector('.btn__loading').style.display = 'inline';
+      dom.submitBtn.disabled = true;
+
+      try {
+        const r = await fetch(`${API}/api/participante`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, estado, cargo }),
+        });
+
+        if (!r.ok) {
+          const err = await r.json();
+          throw new Error(err.error || 'Erro ao registrar');
+        }
+
+        const p = await r.json();
+        allParticipantes.push(p);
+        renderAll();
+        dom.form.reset();
+        showFeedback('Você está no mapa! Bem-vindo(a) ao Bonde!', 'success');
+      } catch (err) {
+        showFeedback(`${err.message}`, 'error');
+      } finally {
+        dom.submitBtn.querySelector('.btn__text').style.display = 'inline';
+        dom.submitBtn.querySelector('.btn__loading').style.display = 'none';
+        dom.submitBtn.disabled = false;
+      }
+    }
+
+    function showFeedback(msg, type) {
+      dom.feedback.textContent = msg;
+      dom.feedback.className = `form-feedback form-feedback--${type}`;
+      setTimeout(() => { dom.feedback.textContent = ''; dom.feedback.className = 'form-feedback'; }, 4000);
+    }
+
+    // ─── Renderers ──────────────────────────────────
+    function renderAll() {
+      renderStats();
+      renderMap();
+      renderChart();
+      renderFeed();
+    }
+
+    function renderStats() {
+      const estados = new Set(allParticipantes.map(p => p.estado));
+      const cargos = new Set(allParticipantes.map(p => p.cargo));
+      animateNumber(dom.statTotal, allParticipantes.length);
+      animateNumber(dom.statEstados, estados.size);
+      animateNumber(dom.statCargos, cargos.size);
+    }
+
+    function animateNumber(el, target) {
+      const current = parseInt(el.textContent) || 0;
+      if (current === target) return;
+      const step = target > current ? 1 : -1;
+      let val = current;
+      const interval = setInterval(() => {
+        val += step;
+        el.textContent = val;
+        if (val === target) clearInterval(interval);
+      }, 40);
+    }
+
+    // ─── Map (dot grid) ─────────────────────────────
+    function renderMap() {
+      const porEstado = {};
+      allParticipantes.forEach(p => { porEstado[p.estado] = (porEstado[p.estado] || 0) + 1; });
+      const maxCount = Math.max(1, ...Object.values(porEstado));
+
+      let html = '<div class="map-grid">';
+      Object.entries(STATE_COORDS).forEach(([uf, [x, y]]) => {
+        const count = porEstado[uf] || 0;
+        const isIntl = INTERNATIONAL.has(uf);
+        // Esconder dots internacionais que não têm participantes
+        if (isIntl && count === 0) return;
+        const size = count === 0 ? 12 : 12 + Math.min(count / maxCount, 1) * 30;
+        const opacity = count === 0 ? 0.25 : 0.5 + (count / maxCount) * 0.5;
+        const color = isIntl ? 'rgba(168,85,247' : 'rgba(0,255,136';
+        const bg = isIntl ? 'background:var(--purple)' : '';
+        const glow = count > 0 ? `box-shadow: 0 0 ${size}px ${color},${opacity * 0.6})` : '';
+        html += `<div class="map-dot ${isIntl ? 'map-dot--intl' : ''}" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;opacity:${opacity};${bg};${glow}" title="${STATE_NAMES[uf]}: ${count} participante(s)">
+          <span class="map-dot__label">${uf}</span>
+          ${count > 0 ? `<span class="map-dot__count">${count}</span>` : ''}
+        </div>`;
+      });
+      html += '</div>';
+      dom.mapContainer.innerHTML = html;
+
+      // Top 5 legend
+      const sorted = Object.entries(porEstado).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      if (sorted.length > 0) {
+        dom.mapLegend.innerHTML = '<strong>Top 5:</strong> ' +
+          sorted.map(([uf, c]) => `<span class="legend-item">${uf} (${c})</span>`).join(' ');
+      }
+    }
+
+    // ─── Chart (horizontal bars) ────────────────────
+    function renderChart() {
+      const porCargo = {};
+      allParticipantes.forEach(p => { porCargo[p.cargo] = (porCargo[p.cargo] || 0) + 1; });
+      const sorted = Object.entries(porCargo).sort((a, b) => b[1] - a[1]);
+      const max = sorted.length > 0 ? sorted[0][1] : 1;
+
+      if (sorted.length === 0) {
+        dom.chartBars.innerHTML = '<p class="chart-empty">Cadastre-se para ver as estatísticas!</p>';
+        return;
+      }
+
+      dom.chartBars.innerHTML = sorted.map(([cargo, count]) => {
+        const pct = (count / max) * 100;
+        return `<div class="bar-row">
+          <span class="bar-label">${cargo}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="bar-value">${count}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // ─── Feed ───────────────────────────────────────
+    function renderFeed() {
+      if (allParticipantes.length === 0) {
+        dom.feedList.innerHTML = '<li class="feed-item feed-item--empty">Nenhum participante ainda… seja o primeiro!</li>';
+        return;
+      }
+
+      const recent = [...allParticipantes].reverse().slice(0, 20);
+      dom.feedList.innerHTML = recent.map(p => {
+        const time = new Date(p.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        return `<li class="feed-item">
+          <span class="feed-item__name">${escapeHtml(p.nome)}</span>
+          <span class="feed-item__meta">${p.estado} · ${p.cargo}</span>
+          <span class="feed-item__time">${time}</span>
+          <span class="feed-item__pod" title="Servido pelo pod ${p.podName}">${p.podName.slice(-8)}</span>
+        </li>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ─── Boot ───────────────────────────────────────
+    init();
+  </script>
+</body>
+
+</html>

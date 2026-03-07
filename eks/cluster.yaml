@@ -1,0 +1,28 @@
+# ═══════════════════════════════════════════════════════════
+# Cluster EKS — Semana DevOps
+# Criar com: eksctl create cluster -f cluster.yaml
+# Deletar com: eksctl delete cluster -f cluster.yaml --disable-nodegroup-eviction
+# ═══════════════════════════════════════════════════════════
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: semana-devops
+  region: us-east-1
+  version: "1.30"
+
+managedNodeGroups:
+  - name: workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    volumeSize: 20
+    labels:
+      role: worker
+    tags:
+      project: semana-devops
+      environment: workshop
+    iam:
+      withAddonPolicies:
+        autoScaler: true

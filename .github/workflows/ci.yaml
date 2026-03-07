@@ -1,0 +1,150 @@
+# ═══════════════════════════════════════════════════════════
+# CI/CD Pipeline — Semana DevOps Map
+# LINUXtips
+# ═══════════════════════════════════════════════════════════
+#
+# Secrets necessárias no repositório GitHub:
+#   - DOCKERHUB_USERNAME  → seu usuário do Docker Hub
+#   - DOCKERHUB_TOKEN     → token de acesso (não use senha!)
+#   - AWS_ACCESS_KEY_ID   → chave de acesso AWS (para kubectl)
+#   - AWS_SECRET_ACCESS_KEY → secret da chave AWS
+#
+# ═══════════════════════════════════════════════════════════
+
+name: CI/CD — Semana DevOps Map
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'k8s/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/**'
+
+env:
+  IMAGE_NAME: devops-map-brasil
+  K8S_NAMESPACE: semana-devops
+  EKS_CLUSTER: semana-devops
+  AWS_REGION: us-east-1
+
+jobs:
+  # ─── Job 1: Testes e Lint ──────────────────────────────────
+  test:
+    name: Testes & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Rodar Testes
+        run: npm test
+
+  # ─── Job 2: Build e Push da Imagem Docker ──────────────────
+  build-push:
+    name: Build & Push Docker
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: app
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Gerar metadata da imagem
+        id: meta
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "tags=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA},${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build e Push
+        uses: docker/build-push-action@v6
+        with:
+          context: app
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+
+  # ─── Job 3: Deploy no EKS ─────────────────────────────────
+  deploy:
+    name: Deploy no EKS
+    runs-on: ubuntu-latest
+    needs: build-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl para EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Aplicar manifestos Kubernetes
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
+
+      - name: Atualizar imagem do Deployment
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          kubectl set image deployment/devops-map-brasil \
+            devops-map-brasil=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} \
+            -n ${{ env.K8S_NAMESPACE }}
+
+      - name: Aguardar rollout
+        run: |
+          kubectl rollout status deployment/devops-map-brasil \
+            -n ${{ env.K8S_NAMESPACE }} \
+            --timeout=120s
+
+      - name: Status final
+        run: |
+          echo "═══════════════════════════════════════════════════"
+          echo "  Semana DevOps Map — Deploy Concluído!"
+          echo "═══════════════════════════════════════════════════"
+          kubectl get pods -n ${{ env.K8S_NAMESPACE }}
+          echo "---"
+          kubectl get svc -n ${{ env.K8S_NAMESPACE }}
+          echo "═══════════════════════════════════════════════════"

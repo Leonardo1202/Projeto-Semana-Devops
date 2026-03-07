@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: semana-devops
+  labels:
+    app: devops-map-brasil
+    project: semana-devops
