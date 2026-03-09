@@ -25,7 +25,7 @@ spec:
       containers:
         - name: devops-map-brasil
           # ── IMPORTANTE: Troque <SEU_DOCKERHUB_USER> pelo seu usuário ──
-          image: linuxtips/testmap:1.1
+          image: leonardo1202/devops-map-brasil:latest
           ports:
             - containerPort: 3000
               protocol: TCP
